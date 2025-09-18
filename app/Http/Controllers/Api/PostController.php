@@ -47,7 +47,7 @@ class PostController extends Controller
     public function show(string $id)
     {
         try {
-            $post = Post::findOrFail($id);
+            $post = Post::findOrFail($id)->with('comments')->get();
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -68,7 +68,25 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string',
+            'content' => 'required|string',
+        ]);
+
+        try {
+            $post = Post::findOrFail($id)->update($validated);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $post,
+            'message' => 'Post Updated Successfully'
+        ], 201);
     }
 
     /**
