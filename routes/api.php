@@ -20,6 +20,7 @@ Route::get('/hello', function () {
 Route::apiResource('/posts', PostController::class);
 Route::apiResource('/comments', CommentController::class);
 
+
 // Nuevas rutas para relación polimórfica
 Route::apiResource('/images', ImageController::class);
 Route::apiResource('/videos', VideoController::class);

@@ -12,9 +12,19 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Post::all();
+
+        $query = Post::whereHas('comments', function ($q) use ($request) {
+            $q->where('content', 'like', '%' . $request->content . '%');
+        })
+        ->with(['comments' => function ($q) use ($request) {
+            $q->where('content', 'like', '%' . $request->content . '%');
+        }]);
+        
+        $posts = $query->get();
+
+
         return response()->json([
             'success' => true,
             'data' => $posts,

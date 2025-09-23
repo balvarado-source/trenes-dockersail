@@ -12,9 +12,19 @@ class ImageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $images = Image::all();
+        
+        $query = Image::query();
+
+
+        if($request->has('title') && !empty($request->title)){
+            $query->byTitle($request->title);
+        }
+
+        $images = $query->get();
+
+
         return response()->json([
             'success' => true,
             'data' => $images,

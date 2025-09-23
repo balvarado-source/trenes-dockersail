@@ -10,6 +10,11 @@ class Image extends Model
 {
     protected $fillable = ['title', 'url', 'description' , 'user_id'];
 
+
+    public function scopeByTitle($query, $title){
+        return $query->where('title', 'like' , '%' . $title . '%');
+    }
+    
     /**
      * Obtener todos los comentarios polimórficos de la imagen.
      */
