@@ -13,5 +13,13 @@ Route::get('/hello', function () {
     return response()->json(['message' => 'Hola trenes desde docker Sail!']);
 });
 
-Route::apiResource('/posts', PostController::class);
-Route::apiResource('/comments', CommentController::class);
+
+Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register']);
+Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/logout',[App\Http\Controllers\AuthController::class, 'logout']);
+    Route::apiResource('/posts', PostController::class);
+    Route::apiResource('/comments', CommentController::class);
+
+});
