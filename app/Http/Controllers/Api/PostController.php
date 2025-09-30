@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::with('user', 'comments')->get();
         return response()->json([
             'success' => true,
             'data' => $posts,
@@ -32,6 +32,9 @@ class PostController extends Controller
             'content' => 'required|string',
         ]);
 
+        // Agregar el user_id después de la validación
+        $validated['user_id'] = auth()->id();
+
         $post = Post::create($validated);
 
         return response()->json([
@@ -47,14 +50,13 @@ class PostController extends Controller
     public function show(string $id)
     {
         try {
-            $post = Post::findOrFail($id)->with('comments')->get();
+            $post = Post::with('comments', 'user')->findOrFail($id);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], 404);
         }
-
 
         return response()->json([
             'success' => true,
@@ -74,7 +76,8 @@ class PostController extends Controller
         ]);
 
         try {
-            $post = Post::findOrFail($id)->update($validated);
+            $post = Post::findOrFail($id);
+            $post->update($validated);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -84,9 +87,9 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $post,
+            'data' => $post->load('user', 'comments'),
             'message' => 'Post Updated Successfully'
-        ], 201);
+        ], 200);
     }
 
     /**
