@@ -9,8 +9,37 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    /**
-     * Display a listing of the resource.
+    
+    /** 
+     * @OA\Get(
+     *  path="/api/posts",
+     *  summary="Obtneer lista de posts",
+     *  tags={"Posts"},
+     *  security={{"sanctum":{}}},     
+     *  @OA\Response(
+     *      response=200, 
+     *      description="Lista de Posts Obtenida Exitosamente",
+     *  @OA\JsonContent(
+     *      type="object",
+     *      @OA\Property(property="success", type="boolean", example="true"),
+     *      @OA\Property(property="data", type="array", @OA\Items(type="object", 
+     *      @OA\Property(property="id", type="integer", example="1"), 
+     *      @OA\Property(property="title", type="string", example="Post 1"), 
+     *      @OA\Property(property="content", type="string", example="Content 1"))),
+     *      @OA\Property(property="created_at", type="string", example="2021-01-01 00:00:00"),
+     *      @OA\Property(property="updated_at", type="string", example="2021-01-01 00:00:00"),
+     *  )
+     * ),
+     * )
+     * @OA\Response(
+     *      response=401, 
+     *      description="No autorizado",
+     *  @OA\JsonContent(
+     *      type="object",
+     *      @OA\Property(property="success", type="boolean", example="false"),
+     *      @OA\Property(property="message", type="string", example="No autorizado")
+     *  )
+     * )
      */
     public function index()
     {
@@ -22,8 +51,40 @@ class PostController extends Controller
         ]);
     }
 
+
     /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *  path="/api/posts",
+     *  summary="Crear un nuevo post",
+     *  tags={"Posts"},
+     *  security={{"sanctum":{}}},
+     *  @OA\RequestBody(
+     *  required=true, 
+     *  @OA\JsonContent(type="object", 
+     *  @OA\Property(property="title", type="string", example="Titulo Postt"), 
+     *  @OA\Property(property="content", type="string", example="Contenido del Post")
+     *  )
+     * ),
+     *  @OA\Response(
+     *      response=201, 
+     *      description="Post creado exitosamente",
+     *  @OA\JsonContent(
+     *      type="object",
+     *      @OA\Property(property="success", type="boolean", example="true"),
+     *      @OA\Property(property="data", type="object", ref="#/components/schemas/Post"),
+     *      @OA\Property(property="message", type="string", example="Post creado exitosamente")
+     * ),
+     * ),
+     * @OA\Response(
+     *      response=401, 
+     *      description="No autorizado",
+     *  @OA\JsonContent(
+     *      type="object",
+     *      @OA\Property(property="success", type="boolean", example="false"),
+     *      @OA\Property(property="message", type="string", example="No autorizado")
+     *  )
+     * )
+     * )
      */
     public function store(Request $request)
     {
