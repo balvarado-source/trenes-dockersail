@@ -35,7 +35,14 @@ class PostController extends Controller
         // Agregar el user_id después de la validación
         $validated['user_id'] = auth()->id();
 
-        $post = Post::create($validated);
+        try {
+            $post = Post::create($validated);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating post'
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
@@ -50,13 +57,14 @@ class PostController extends Controller
     public function show(string $id)
     {
         try {
-            $post = Post::with('comments', 'user')->findOrFail($id);
+            $post = Post::findOrFail($id)->with('comments')->get();
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], 404);
         }
+
 
         return response()->json([
             'success' => true,
@@ -76,8 +84,7 @@ class PostController extends Controller
         ]);
 
         try {
-            $post = Post::findOrFail($id);
-            $post->update($validated);
+            $post = Post::findOrFail($id)->update($validated);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -87,9 +94,9 @@ class PostController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $post->load('user', 'comments'),
+            'data' => $post,
             'message' => 'Post Updated Successfully'
-        ], 200);
+        ], 201);
     }
 
     /**
