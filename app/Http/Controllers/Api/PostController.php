@@ -43,7 +43,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::with('user', 'comments')->get();
         return response()->json([
             'success' => true,
             'data' => $posts,
@@ -93,7 +93,17 @@ class PostController extends Controller
             'content' => 'required|string',
         ]);
 
-        $post = Post::create($validated);
+        // Agregar el user_id después de la validación
+        $validated['user_id'] = auth()->id();
+
+        try {
+            $post = Post::create($validated);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating post'
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
