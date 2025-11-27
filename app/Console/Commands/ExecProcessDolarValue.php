@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\DolarOficial;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -17,7 +18,7 @@ class ExecProcessDolarValue extends Command
      */
     protected $signature = 'app:exec-process-dolar-value';
 
-    /**sai
+    /**
      * The console command description.
      *
      * @var string
@@ -33,14 +34,20 @@ class ExecProcessDolarValue extends Command
 
         if ($response->successful()) {
             $dato = $response->json();
-            $dolarValueExists = DolarOficial::where('value', $dato['venta'])->exists();
 
-            if (!$dolarValueExists) {
-                Redis::set('dolar_oficial', $dato['venta']);
-                DolarOficial::create(['value' => $dato['venta']]);
-                Log::info('Dato API:', $dato);
-            } else {
-                Log::info('Dato existente:', $dato);
+            try {
+                $lastDolar = DolarOficial::latest()->first();
+
+                if ($lastDolar->value != $dato['venta']) {
+                    Redis::set('dolar_oficial', $dato['venta']);
+                    DolarOficial::create(['value' => $dato['venta']]);
+                    Log::info('Dato API:', $dato);
+                } else {
+                    Log::info('Dato existente:', $dato);
+                }
+            } catch (Exception $e) {
+                Log::error($e->getMessage());
+                throw new Exception("Se cayó la base");
             }
         } else {
             Log::error('Error API', ['status' => $response->status()]);
